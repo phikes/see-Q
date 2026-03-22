@@ -13,7 +13,7 @@ transceiver.**
 
 ## Features
 
-* based on [@ham-js/cat](https://ham-js.github.io)
+* based on [@ham-js/cat](https://ham-js.github.io/cat)
 * runs on **any chrome-based browser** (except iOS)
 * no need to **install anything**
 * use any CAT-capable transceiver and have the same choice in your gear as people without vision impairments
