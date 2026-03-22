@@ -9,7 +9,7 @@ other communication APIs. There is no complicated setup necessary such as the
 installation of packages or libraries.
 
 **Just head over to [https://see-q.github.io](see-q.github.io) and connect your
-transceiver.
+transceiver.**
 
 ## Features
 
