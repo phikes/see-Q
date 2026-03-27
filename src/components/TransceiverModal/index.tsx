@@ -7,6 +7,11 @@ import { DriverInput } from "./DriverInput"
 
 export interface Values {
   driver: DriverType
+  driverOptions: {
+    baudRate: number
+  } | {
+    url: string
+  } | {}
   name: string
   transceiver: string
   vendor: TransceiverVendor
@@ -19,6 +24,7 @@ interface Props extends ModalProps {
 export const TransceiverModal = ({ ...modalProps }: Props) => {
   const initialValues: Values = useMemo(() => ({
     driver: DriverType.WebSerialDriver,
+    driverOptions: {},
     name: "",
     transceiver: "",
     vendor: TransceiverVendor.Yaesu
