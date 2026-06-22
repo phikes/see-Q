@@ -2,6 +2,7 @@ import { Alert, Button } from "react-bootstrap"
 import { useWelcomeMessageStore } from "./useWelcomeMessageStore"
 import { useShallow } from "zustand/shallow"
 import { useState } from "react"
+import { FormattedMessage } from "react-intl"
 
 export const WelcomeMessage = () => {
   const { hideWelcomeMessage, setHideWelcomeMessage } = useWelcomeMessageStore(
@@ -17,14 +18,14 @@ export const WelcomeMessage = () => {
   return <Alert>
     {
       !hideWelcomeMessage && <>
-        <Alert.Heading as="h1">Welcome to see-Q!</Alert.Heading>
-        <p>see-Q is an extensible interface for visually impaired amateur radio operators. It relies on a transceiver being connected to the computer via its CAT interface. Once connected the user can select from a list of modules which help them read back the frequency, read the S-meter and much more.</p>
-        <Button onClick={() => setHideWelcomeMessage(true)}>Don't show this message again</Button>
+      <Alert.Heading as="h1"><FormattedMessage defaultMessage="Welcome to see-Q!" /></Alert.Heading>
+      <p><FormattedMessage defaultMessage="see-Q is an extensible interface for visually impaired amateur radio operators. It relies on a transceiver being connected to the computer via its CAT interface. Once connected the user can select from a list of modules which help them read back the frequency, read the S-meter and much more." /></p>
+      <Button onClick={() => setHideWelcomeMessage(true)}><FormattedMessage defaultMessage="Don't show this message again" /></Button>
       </>
     }
     {
       hideWelcomeMessage && <>
-      <p>Ok, this message will not be shown again. If you want to display it again, you can click the button on the bottom of the page.</p>
+      <p><FormattedMessage defaultMessage="Ok, this message will not be shown again. If you want to display it again, you can click the button on the bottom of the page." /></p>
       </>
     }
   </Alert>

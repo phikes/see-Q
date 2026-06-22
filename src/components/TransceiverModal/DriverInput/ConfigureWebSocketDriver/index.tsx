@@ -1,20 +1,26 @@
 import { Field, useFormikContext } from "formik"
-import { useEffect } from "react"
+import { useEffect, useId } from "react"
 import { Form } from "react-bootstrap"
-import { type Values } from "../.."
+import { type TransceiverConfig } from "../.."
+import { FormattedMessage, useIntl } from "react-intl"
 
 export const ConfigureWebSocketDriver = () => {
-  const { values: { driverOptions } , setFieldValue } = useFormikContext<Values>()
+  const { errors: { driverOptions: errors }, values: { driverOptions } , setFieldValue } = useFormikContext<TransceiverConfig>()
+  const intl = useIntl()
 
   useEffect(() => {
     if ("url" in driverOptions) return
 
     setFieldValue("driverOptions.url", "")
-  }, [])
+  }, [driverOptions, setFieldValue])
 
-  return <Form.Group>
-    <Form.Label>URL</Form.Label>
+  const error = errors && "url" in errors && errors.url
+  const id = useId()
 
-    <Field as={Form.Control} name="driverOptions.url" type="url" />
+  return <Form.Group controlId={id}>
+    <Form.Label><FormattedMessage defaultMessage="URL" /></Form.Label>
+
+    <Field as={Form.Control} isInvalid={error} name="driverOptions.url" placeholder={intl.formatMessage({ defaultMessage: "e.g. ws://mywebsocket.com/socket"  })} type="url" />
+    <Form.Control.Feedback type="invalid">{error}</Form.Control.Feedback>
   </Form.Group>
 }

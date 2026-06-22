@@ -1,7 +1,7 @@
 import { Button } from "react-bootstrap"
 import { useWelcomeMessageStore } from "@/components/WelcomeMessage/useWelcomeMessageStore"
 import { useShallow } from "zustand/shallow"
-import { useCallback } from "react"
+import { FormattedMessage } from "react-intl"
 
 export const ShowWelcomeMessage = () => {
   const { hideWelcomeMessage, setHideWelcomeMessage } = useWelcomeMessageStore(
@@ -11,9 +11,7 @@ export const ShowWelcomeMessage = () => {
     })
   ))
 
-  const showWelcomeMessage = useCallback(() => setHideWelcomeMessage(false), [setHideWelcomeMessage])
-
   if (!hideWelcomeMessage) return
 
-  return <Button onClick={showWelcomeMessage}>Show welcome message again</Button>
+    return <Button onClick={() => setHideWelcomeMessage(false)}><FormattedMessage defaultMessage="Show welcome message again" /></Button>
 }

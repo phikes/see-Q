@@ -1,11 +1,15 @@
 import { DriverType, TransceiverVendor } from "@ham-js/cat"
-import { Field, Formik, Form } from "formik"
-import { useCallback, useId, useMemo } from "react"
-import { Button, Form as BSForm, Modal, type ModalProps } from "react-bootstrap"
+import { Field, Formik, Form as FormikForm } from "formik"
+import { useId } from "react"
+import { Button, Form, Modal } from "react-bootstrap"
 import { TransceiverInput } from "./TransceiverInput"
 import { DriverInput } from "./DriverInput"
+import { useTransceiverConfigsStore } from "@/components/Transceivers/useTransceiverConfigsStore"
+import { useTransceiverModalStore } from "./useTransceiverModalStore"
+import { object, string } from "yup"
+import { FormattedMessage, useIntl } from "react-intl"
 
-export interface Values {
+export interface TransceiverConfig {
   driver: DriverType
   driverOptions: {
     baudRate: number
@@ -14,59 +18,76 @@ export interface Values {
   } | {}
   name: string
   transceiver: string
+  uuid: string
   vendor: TransceiverVendor
 }
 
-interface Props extends ModalProps {
-
-}
-
-export const TransceiverModal = ({ ...modalProps }: Props) => {
-  const initialValues: Values = useMemo(() => ({
+export const TransceiverModal = () => {
+  const intl = useIntl()
+  const { showTransceiverModal, setShowTransceiverModal } = useTransceiverModalStore()
+  const addTransceiverConfig = useTransceiverConfigsStore(({ addTransceiverConfig }) => addTransceiverConfig)
+  const initialValues: TransceiverConfig = {
     driver: DriverType.WebSerialDriver,
     driverOptions: {},
     name: "",
     transceiver: "",
+    uuid: self.crypto.randomUUID(),
     vendor: TransceiverVendor.Yaesu
-  }), [])
+  }
 
-  const handleSubmit = useCallback(() => {
-
-  }, [])
+  const handleSubmit = (values: TransceiverConfig) => {
+    addTransceiverConfig(values)
+    setShowTransceiverModal(false)
+  }
 
   const nameId = useId()
   const vendorId = useId()
   const vendorTextId = useId()
 
-  const vendors = useMemo(() => Object.keys(TransceiverVendor).sort(), [])
+  const vendors = Object.keys(TransceiverVendor).sort()
 
-  return <Modal {...modalProps}>
-    <Formik initialValues={initialValues} onSubmit={handleSubmit}>
+  const validationSchema = object({
+    name: string().required(intl.formatMessage({ defaultMessage: "Name is required" })),
+    driverOptions: object()
+    .when(
+      "driver",
       {
-        () => <Form>
-          <Modal.Header closeButton>Add Transceiver</Modal.Header>
+        is: DriverType.WebSocketDriver,
+        then: () => object({
+          url: string().required(intl.formatMessage({ defaultMessage: "URL is required" }))
+        }).required()
+      }
+    )
+  })
+
+  return <Modal show={showTransceiverModal} onHide={() => setShowTransceiverModal(false)}>
+    <Formik initialValues={initialValues} onReset={() => setShowTransceiverModal(false)} onSubmit={handleSubmit} validationSchema={validationSchema}>
+      {
+        ({ errors, isValid }) => <FormikForm>
+          <Modal.Header closeButton><FormattedMessage defaultMessage="Add Transceiver" /></Modal.Header>
           <Modal.Body>
-            <BSForm.Group className="mb-3" controlId={nameId}>
-              <BSForm.Label>Name</BSForm.Label>
-              <Field as={BSForm.Control} name="name" placeholder="Give your transceiver a name of your choice" />
-            </BSForm.Group>
-            <BSForm.Group className="mb-3" controlId={vendorId}>
-              <BSForm.Label>Vendor</BSForm.Label>
-              <Field aria-describedby={vendorTextId} as={BSForm.Select} name="vendor">
-              {
-                vendors.map((vendor) => <option key={vendor}>{TransceiverVendor[vendor as keyof typeof TransceiverVendor]}</option>)
-              }
+            <Form.Group className="mb-3" controlId={nameId}>
+              <Form.Label><FormattedMessage defaultMessage="Name" /></Form.Label>
+              <Field as={Form.Control} isInvalid={errors.name} name="name" placeholder={intl.formatMessage({ defaultMessage: "Give your transceiver a name of your choice" })} />
+              {errors.name && <Form.Control.Feedback type="invalid">{errors.name}</Form.Control.Feedback>}
+            </Form.Group>
+            <Form.Group className="mb-3" controlId={vendorId}>
+              <Form.Label><FormattedMessage defaultMessage="Vendor" /></Form.Label>
+              <Field aria-describedby={vendorTextId} as={Form.Select} name="vendor">
+                {
+                  vendors.map((vendor) => <option key={vendor}>{TransceiverVendor[vendor as keyof typeof TransceiverVendor]}</option>)
+                }
               </Field>
-              <BSForm.Text id={vendorTextId}>The "Virtual" vendor can be used for demo purposes.</BSForm.Text>
-            </BSForm.Group>
+              <Form.Text id={vendorTextId}><FormattedMessage defaultMessage='The "Virtual" vendor can be used for demo purposes.' /></Form.Text>
+            </Form.Group>
             <TransceiverInput />
             <DriverInput />
           </Modal.Body>
           <Modal.Footer>
-            <Button type="reset" variant="danger">Discard Transceiver</Button>
-            <Button type="submit">Add Transceiver</Button>
+            <Button type="reset" variant="danger"><FormattedMessage defaultMessage="Discard transceiver" /></Button>
+            <Button disabled={!isValid} type="submit"><FormattedMessage defaultMessage="Add transceiver" /></Button>
           </Modal.Footer>
-        </Form>
+        </FormikForm>
       }
     </Formik>
   </Modal>

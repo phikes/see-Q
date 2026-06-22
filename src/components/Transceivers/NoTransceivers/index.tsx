@@ -1,17 +1,21 @@
-import { TransceiverModal } from "@/components/TransceiverModal"
-import { useCallback, useState } from "react"
+import { useTransceiverModalStore } from "@/components/TransceiverModal/useTransceiverModalStore"
 import { Alert, Button } from "react-bootstrap"
+import { useTransceiverConfigsStore } from "../useTransceiverConfigsStore"
+import { FormattedMessage } from "react-intl"
 
 export const NoTransceivers = () => {
-  const [showTransceiverModal, setShowTransceiverModal] = useState(false)
+  const transceiverConfigs = useTransceiverConfigsStore((({ transceiverConfigs }) =>  transceiverConfigs))
+  const setShowTransceiverModal = useTransceiverModalStore(({ setShowTransceiverModal }) => setShowTransceiverModal)
+  const showTransceiverModal = () => setShowTransceiverModal(true)
+
+  if (transceiverConfigs.length > 0) return
 
   return <>
   <Alert variant="primary">
-    <Alert.Heading>You have not added any transceivers yet</Alert.Heading>
+    <Alert.Heading><FormattedMessage defaultMessage="You have not added any transceivers yet" /></Alert.Heading>
     <div>
-      <Button onClick={useCallback(() => setShowTransceiverModal(true), [])}>Add your transceiver</Button>
+      <Button onClick={showTransceiverModal}>Add transceiver</Button>
     </div>
   </Alert>
-  <TransceiverModal onHide={useCallback(() => setShowTransceiverModal(false), [])} show={showTransceiverModal} />
 </>
 }
